@@ -88,7 +88,7 @@ const login = async (req, res) => {
 
     res.cookie("accessToken", jwtToken, {
       httpOnly: true,
-      sameSite: "None",
+      sameSite: "strict",
       secure: true, // for production
       maxAge: 4 * 60 * 60 * 1000,
       path: "/",
@@ -107,7 +107,18 @@ const login = async (req, res) => {
   }
 };
 
+const verify = async (req, res) => {
+  const user = req.user;
+  const userData = {
+    name: user.name,
+    email: user.email,
+    username: user.username,
+  };
+  res.status(200).json(userData);
+};
+
 module.exports = {
   login,
   register,
+  verify,
 };
