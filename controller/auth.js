@@ -117,8 +117,31 @@ const verify = async (req, res) => {
   res.status(200).json(userData);
 };
 
+const getUsername = async (req, res) => {
+  const { _id: userId } = req.user;
+
+  try {
+    const userWithUsername = await usernameModel.findOne({ userId });
+
+    if (!userWithUsername) {
+      return res.status(404).json({ message: "Username not found!" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      username: userWithUsername.username,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   login,
   register,
   verify,
+  getUsername,
 };
