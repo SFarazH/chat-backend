@@ -122,14 +122,15 @@ const getReceivedRequests = async (req, res) => {
   const { _id: userId } = req.user;
 
   try {
-    const user = await userModel.findById(userId)
-      .select("requestsReceived") 
+    const user = await userModel
+      .findById(userId)
+      .select("requestsReceived")
       .populate({
         path: "requestsReceived",
-        select: "fromUserId createdAt", 
+        select: "fromUserId createdAt",
         populate: {
           path: "fromUserId",
-          select: "name username", 
+          select: "name username",
         },
       });
 
@@ -155,13 +156,17 @@ const getSentRequests = async (req, res) => {
   const { _id: userId } = req.user;
 
   try {
-    const user = await userModel.findById(userId).populate({
-      path: "requestsSent",
-      populate: {
-        path: "toUserId",
-        select: "name username",
-      },
-    });
+    const user = await userModel
+      .findById(userId)
+      .select("requestsSent")
+      .populate({
+        path: "requestsSent",
+        select: "toUserId createdAt",
+        populate: {
+          path: "toUserId",
+          select: "name username",
+        },
+      });
 
     if (!user) {
       return res.status(404).json({ message: "User not found!" });
