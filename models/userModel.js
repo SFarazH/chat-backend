@@ -10,13 +10,22 @@ const userSchema = mongoose.Schema(
     password: {
       type: String,
     },
+    username: {
+      type: String,
+    },
     friends: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
       },
     ],
-    pendingRequests: [
+    requestsReceived: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FriendReqs",
+      },
+    ],
+    requestsSent: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "FriendReqs",

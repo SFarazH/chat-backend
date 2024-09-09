@@ -17,7 +17,11 @@ const sendFriendRequest = async (req, res) => {
     await newRequest.save();
 
     await userModel.findByIdAndUpdate(requestToUser, {
-      $push: { pendingRequests: newRequest._id },
+      $push: { requestsReceived: newRequest._id },
+    });
+
+    await userModel.findByIdAndUpdate(fromUserId, {
+      $push: { requestSent: newRequest._id },
     });
 
     return res.status(201).json({

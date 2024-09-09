@@ -1,7 +1,6 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const userModel = require("../models/userModel");
-const usernameModel = require("../models/usernameModel");
 
 const register = async (req, res) => {
   const { name, email, password, username } = req.body;
@@ -19,7 +18,7 @@ const register = async (req, res) => {
     }
 
     // Check if username is already taken
-    const verifyUsername = await usernameModel.findOne({ username });
+    const verifyUsername = await userModel.findOne({ username });
     if (verifyUsername) {
       return res.status(409).json({ message: "Username already taken!" });
     }
@@ -31,19 +30,11 @@ const register = async (req, res) => {
     const user = new userModel({
       name,
       email,
+      username,
       password: hashedPassword,
     });
 
-    // Save the new user in the database
-    const savedUser = await user.save();
-
-    // Save the username only if user registration is successful
-    const newUsername = new usernameModel({
-      username,
-      userId: savedUser._id,
-    });
-
-    await newUsername.save();
+    await user.save();
 
     return res.status(201).json({
       message: "User registered successfully!",
@@ -117,31 +108,8 @@ const verify = async (req, res) => {
   res.status(200).json(userData);
 };
 
-const getUsername = async (req, res) => {
-  const { _id: userId } = req.user;
-
-  try {
-    const userWithUsername = await usernameModel.findOne({ userId });
-
-    if (!userWithUsername) {
-      return res.status(404).json({ message: "Username not found!" });
-    }
-
-    return res.status(200).json({
-      success: true,
-      username: userWithUsername.username,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
-
 module.exports = {
   login,
   register,
   verify,
-  getUsername,
 };
