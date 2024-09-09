@@ -122,10 +122,11 @@ const getReceivedRequests = async (req, res) => {
   const { _id: userId } = req.user;
 
   try {
-    
     const user = await userModel.findById(userId)
+      .select("requestsReceived") 
       .populate({
         path: "requestsReceived",
+        select: "fromUserId createdAt", 
         populate: {
           path: "fromUserId",
           select: "name username", 
@@ -150,5 +151,39 @@ const getReceivedRequests = async (req, res) => {
   }
 };
 
+const getSentRequests = async (req, res) => {
+  const { _id: userId } = req.user;
 
-module.exports = { sendFriendRequest, acceptFriendRequest, getReceivedRequests };
+  try {
+    const user = await userModel.findById(userId).populate({
+      path: "requestsSent",
+      populate: {
+        path: "toUserId",
+        select: "name username",
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found!" });
+    }
+
+    const sentRequests = user.requestsSent;
+
+    return res.status(200).json({
+      success: true,
+      sentRequests,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+module.exports = {
+  sendFriendRequest,
+  acceptFriendRequest,
+  getReceivedRequests,
+  getSentRequests,
+};
