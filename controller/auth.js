@@ -70,7 +70,6 @@ const login = async (req, res) => {
       {
         id: user._id,
         email: user.email,
-        
       },
       process.env.SECRET_KEY,
       {
@@ -109,8 +108,31 @@ const verify = async (req, res) => {
   res.status(200).json(userData);
 };
 
+const logout = async (req, res) => {
+  try {
+    // Clear the access token cookie by setting it to expire in the past
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: true, // Set to true if using HTTPS
+      path: "/",
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Logged out successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   login,
   register,
+  logout,
   verify,
 };

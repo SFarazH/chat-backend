@@ -118,4 +118,37 @@ const acceptFriendRequest = async (req, res) => {
   }
 };
 
-module.exports = { sendFriendRequest, acceptFriendRequest };
+const getReceivedRequests = async (req, res) => {
+  const { _id: userId } = req.user;
+
+  try {
+    
+    const user = await userModel.findById(userId)
+      .populate({
+        path: "requestsReceived",
+        populate: {
+          path: "fromUserId",
+          select: "name username", 
+        },
+      });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found!" });
+    }
+
+    const receivedRequests = user.requestsReceived;
+
+    return res.status(200).json({
+      success: true,
+      receivedRequests,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+
+module.exports = { sendFriendRequest, acceptFriendRequest, getReceivedRequests };
