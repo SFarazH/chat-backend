@@ -32,12 +32,11 @@ const searchUsernames = async (req, res) => {
   }
 
   try {
-    // Use a case-insensitive regular expression to find matching usernames
     const users = await userModel
       .find({
         $or: [
-          { username: { $regex: query, $options: "i" } }, // Search in the username field
-          { name: { $regex: query, $options: "i" } }, // Search in the name field
+          { username: { $regex: query, $options: "i" } },
+          { name: { $regex: query, $options: "i" } },
         ],
       })
       .select("username name");
@@ -54,4 +53,52 @@ const searchUsernames = async (req, res) => {
   }
 };
 
-module.exports = { getFriends, searchUsernames };
+const addProfilePicture = async (req, res) => {
+  console.log(req, "req");
+  if (!req.file) {
+    return res.status(400).json({ message: "No file uploaded." });
+  }
+  const user = req.user;
+  try {
+    const pfp = {
+      data: req.file.buffer,
+      contentType: req.file.mimetype,
+    };
+    user.profilePicture = pfp;
+    await user.save();
+    return res.status(200).json({
+      success: true,
+      message: "profile picutre updated",
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const displayProfilePicture = async (req, res) => {
+  try {
+    const user = req.user;
+    if (!user || !user.profilePicture) {
+      return res.status(404).json({ message: "Profile picture not found." });
+    }
+    res.setHeader("Content-Type", user.profilePicture.contentType);
+    res.send(user.profilePicture.data);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+module.exports = {
+  getFriends,
+  searchUsernames,
+  addProfilePicture,
+  displayProfilePicture,
+};

@@ -31,6 +31,10 @@ const userSchema = mongoose.Schema(
         ref: "FriendReqs",
       },
     ],
+    profilePicture: {
+      data: Buffer,
+      contentType: String,
+    },
   },
   { timestamps: true }
 );

@@ -11,7 +11,7 @@ const sendFriendRequest = async (req, res) => {
       return res.status(404).json({ message: "User not found!" });
     }
 
-    // 1. Check if the users are already friends
+
     const fromUser = await userModel.findById(fromUserId);
     const toUser = await userModel.findById(requestToUser);
 
@@ -24,7 +24,6 @@ const sendFriendRequest = async (req, res) => {
         .json({ message: "You are already friends with this user." });
     }
 
-    // 2. Check if there is already a friend request from A to B or B to A
     const existingRequest = await friendRequestsModel.findOne({
       $or: [
         { fromUserId, toUserId: requestToUser },
@@ -38,7 +37,6 @@ const sendFriendRequest = async (req, res) => {
         .json({ message: "Friend request already exists." });
     }
 
-    // 3. Proceed to create a new friend request
     const newRequest = new friendRequestsModel({
       fromUserId,
       toUserId: requestToUser,
