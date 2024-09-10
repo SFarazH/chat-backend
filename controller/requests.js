@@ -32,7 +32,7 @@ const sendFriendRequest = async (req, res) => {
       ],
     });
 
-    if (existingRequest) {
+    if (existingRequest.status === "pending") {
       return res
         .status(400)
         .json({ message: "Friend request already exists." });
@@ -70,7 +70,7 @@ const sendFriendRequest = async (req, res) => {
 const acceptFriendRequest = async (req, res) => {
   const { friendRequestId } = req.body;
   const { _id: userId } = req.user;
-  console.log("req",req.body)
+  console.log("req", req.body);
 
   try {
     // Find the friend request by ID
@@ -158,7 +158,6 @@ const rejectFriendRequest = async (req, res) => {
   }
 };
 
-
 const getReceivedRequests = async (req, res) => {
   const { _id: userId } = req.user;
 
@@ -232,5 +231,5 @@ module.exports = {
   acceptFriendRequest,
   getReceivedRequests,
   getSentRequests,
-  rejectFriendRequest
+  rejectFriendRequest,
 };
