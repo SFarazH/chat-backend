@@ -104,13 +104,13 @@ const verify = async (req, res) => {
     name: user.name,
     email: user.email,
     username: user.username,
+    pfp: user.profilePicture,
   };
   res.status(200).json(userData);
 };
 
 const logout = async (req, res) => {
   try {
-    // Clear the access token cookie by setting it to expire in the past
     res.clearCookie("accessToken", {
       httpOnly: true,
       sameSite: "strict",
