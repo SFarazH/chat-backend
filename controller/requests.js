@@ -70,6 +70,7 @@ const sendFriendRequest = async (req, res) => {
 const acceptFriendRequest = async (req, res) => {
   const { friendRequestId } = req.body;
   const { _id: userId } = req.user;
+  console.log("req",req.body)
 
   try {
     // Find the friend request by ID
@@ -117,6 +118,46 @@ const acceptFriendRequest = async (req, res) => {
     });
   }
 };
+
+const rejectFriendRequest = async (req, res) => {
+  const { friendRequestId } = req.body;
+  const { _id: userId } = req.user;
+
+  try {
+    // Find the friend request by ID
+    const friendRequest = await friendRequestsModel.findById(friendRequestId);
+    if (!friendRequest) {
+      return res.status(404).json({ message: "Friend request not found!" });
+    }
+
+    // Ensure the current user is the one who received the request
+    if (friendRequest.toUserId.toString() !== userId.toString()) {
+      return res.status(403).json({ message: "Unauthorized action!" });
+    }
+
+    friendRequest.status = "rejected";
+    await friendRequest.save();
+
+    await userModel.findByIdAndUpdate(friendRequest.toUserId, {
+      $pull: { requestsReceived: friendRequestId },
+    });
+
+    await userModel.findByIdAndUpdate(friendRequest.fromUserId, {
+      $pull: { requestsSent: friendRequestId },
+    });
+
+    return res.status(200).json({
+      message: "Friend request rejected!",
+      success: true,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 
 const getReceivedRequests = async (req, res) => {
   const { _id: userId } = req.user;
@@ -191,4 +232,5 @@ module.exports = {
   acceptFriendRequest,
   getReceivedRequests,
   getSentRequests,
+  rejectFriendRequest
 };
